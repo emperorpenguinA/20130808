@@ -25,7 +25,9 @@ public class QuestionC {
     private static final String QUEENCELL = "Q";
     private static final String NOTQUEENCELL = ".";
     private static final String VALIDATE = "入力が不正です。";
-
+    private static String[][] board;
+    private static int[] rowArray;
+    private static int[] columnArray;
     /**
      * <pre>
      *
@@ -47,9 +49,10 @@ public class QuestionC {
     public static void main(String[] args) {
 
         try {
-            List<Cell> cellList = new ArrayList<Cell>();
-            BufferedReader br = new BufferedReader(new InputStreamReader(
-                    System.in));
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            board = new String[8][8];
+            rowArray = new int[3];
+            columnArray = new int[3];
 
             String str;
             int queenCount = 0;
@@ -66,28 +69,19 @@ public class QuestionC {
 
                 if (str.length() == 8) {
 
-                    // 行ごとのMapを作成
-                    int rowQueenCount = 0;
+                    // 行を作成
                     for (int j = 0; j < 8; j++) {
                         String cellDispName = str.substring(j, j + 1);
-                        if (QUEENCELL.equals(cellDispName)
-                                || NOTQUEENCELL.equals(cellDispName)) {
-                            Cell cell = new Cell(cellDispName, i, j);
-                            if (cell.isQueen()) {
-                                queenCount++;
-                                rowQueenCount++;
-                            }
-                            cellList.add(cell);
-                        } else {
-
+                        if (QUEENCELL.equals(cellDispName)) {
+                            board[i][j] = cellDispName;
+                            rowArray[queenCount] = i;
+                            columnArray[queenCount] = j;
+                            queenCount++;
+                        } else if (!NOTQUEENCELL.equals(cellDispName)) {
                             // 入力されたセルの値が正しくない場合はエラー
                             System.out.println(VALIDATE + "2.CellValue");
                             return;
                         }
-                    }
-
-                    if (rowQueenCount > 1) {
-                        System.out.println(VALIDATE + "4.queenCount");
                     }
                 } else {
                     // 入力されたセルの数が正しくない場合はエラー
@@ -104,147 +98,64 @@ public class QuestionC {
             br.close();
 
             // 判定
-            cellList = analyzeQueen(cellList);
-
-            // 出力
-            for (int i = 0; i < 8; i++) {
-                StringBuilder queenDisp = new StringBuilder();
-                for (int j = 0; j < 8; j++) {
-                    queenDisp.append(cellList.get(i * 8 + j).getDispName());
+            if (analyzeQueen()) {
+                // 出力
+                for (int i = 0; i < 8; i++) {
+                    StringBuilder queenDisp = new StringBuilder();
+                    for (int j = 0; j < 8; j++) {
+                        queenDisp.append(board[i][j]);
+                    }
+                    System.out.println(queenDisp.toString());
                 }
-                System.out.println(queenDisp.toString());
+
+            } else {
+                System.out.println("NoAnswer");
             }
+
         } catch (IOException e) {
             // TODO: handle exception
         }
 
     }
 
-    private static List<Cell> analyzeQueen(List<Cell> cellList) {
-        List<Cell> returnList = cellList;
+    private static boolean analyzeQueen() {
+        boolean isExistAnswer = true;
 
-        int queenCount = 3;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                Cell cell = cellList.get(i * 8 + j);
-
-                if (!cell.isQueen) {
-
-                }
-
+        //Queen1
+        for (int i=1; i<8; i++) {
+            if (i != rowArray[0]) {
+                board[i][columnArray[0]] = NOTQUEENCELL;
             }
+            if (i != columnArray[0]) {
+                board[rowArray[0]][i] = NOTQUEENCELL;
+            }
+
+            if (i != rowArray[1]) {
+                board[i][columnArray[1]] = NOTQUEENCELL;
+            }
+            if (i != columnArray[1]) {
+                board[rowArray[1]][i] = NOTQUEENCELL;
+            }
+            if (i != rowArray[2]) {
+                board[i][columnArray[2]] = NOTQUEENCELL;
+            }
+            if (i != columnArray[2]) {
+                board[rowArray[2]][i] = NOTQUEENCELL;
+            }
+
         }
 
-        return returnList;
+
+
+        //Queen2
+
+        //Queen3
+
+
+
+
+
+
+        return isExistAnswer;
     }
-
-    private static Cell getCell(Map<Integer, Map<Integer, Cell>> cellMap,
-            int row, int column) {
-        Cell cell = cellMap.get(row).get(column);
-
-        return cell;
-    }
-
-    public static class CellMap {
-        private Map<Integer, Map<Integer, Cell>> cellMap;
-
-        public CellMap() {
-            cellMap = new HashMap<Integer, Map<Integer, Cell>>();
-            for (int i = 0; i < 8; i++) {
-                Map<Integer, Cell> cellRow = new HashMap<Integer, Cell>();
-                for (int j = 0; j < 8; j++) {
-                    cellRow.put(j, new Cell());
-                }
-                cellMap.put(i, cellRow);
-            }
-        }
-
-        public void putCell(Cell cell, int row, int column) {
-            cellMap.get(row).put(column, cell);
-        }
-
-        public Cell getCell(int row, int column) {
-            return cellMap.get(row).get(column);
-        }
-
-        public List<Cell> getRowCell(int row) {
-            List<Cell> rowCell = new ArrayList<Cell>();
-            for (int i = 0; i < 8; i++) {
-                rowCell.add(cellMap.get(row).get(i));
-            }
-            return rowCell;
-        }
-
-        public List<Cell> getColumnCell(int column) {
-            List<Cell> columnCell = new ArrayList<Cell>();
-            for (int i = 0; i < 8; i++) {
-                columnCell.add(cellMap.get(i).get(column));
-            }
-            return columnCell;
-        }
-
-        public Map<Integer, Map<Integer, Cell>> getCellMap() {
-            return cellMap;
-        }
-
-        public void setCellMap(Map<Integer, Map<Integer, Cell>> cellMap) {
-            this.cellMap = cellMap;
-        }
-    }
-
-    public static class Cell {
-
-        private String dispName;
-        private boolean isQueen;
-        private int row;
-        private int column;
-
-        public Cell() {
-            // TODO 自動生成されたコンストラクター・スタブ
-        }
-
-        public Cell(String dispName, int row, int column) {
-            this.dispName = dispName;
-            this.row = row;
-            this.column = column;
-            if (QUEENCELL.equals(dispName)) {
-                isQueen = true;
-            } else {
-                isQueen = false;
-            }
-        }
-
-        public int getRow() {
-            return row;
-        }
-
-        public void setRow(int row) {
-            this.row = row;
-        }
-
-        public int getColumn() {
-            return column;
-        }
-
-        public void setColumn(int column) {
-            this.column = column;
-        }
-
-        public String getDispName() {
-            return dispName;
-        }
-
-        public void setDispName(String dispName) {
-            this.dispName = dispName;
-        }
-
-        public boolean isQueen() {
-            return isQueen;
-        }
-
-        public void setQueen(boolean isQueen) {
-            this.isQueen = isQueen;
-        }
-    }
-
 }
